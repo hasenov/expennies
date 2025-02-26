@@ -1,0 +1,1 @@
+{"version":1,"defects":[],"times":{"Tests\\Unit\\ConfigTest::it_is_able_to_get_nested_settings":0.054,"Tests\\Unit\\ConfigTest::it_gets_the_default_value_when_setting_is_not_found":0,"Tests\\Unit\\ConfigTest::it_returns_null_by_default_when_setting_is_not_found":0.003}}
