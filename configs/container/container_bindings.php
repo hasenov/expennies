@@ -8,6 +8,9 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Slim\App;
+use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
 use Symfony\Component\Asset\Package;
@@ -22,6 +25,19 @@ use Twig\Extra\Intl\IntlExtension;
 use function DI\create;
 
 return [
+    App::class              => function(ContainerInterface $container) {
+        AppFactory::setContainer($container);
+
+        $addMiddlewares = require CONFIG_PATH . '/middleware.php';
+        $router = require CONFIG_PATH . '/routes/web.php';
+
+        $app = AppFactory::create();
+
+        $addMiddlewares($app);
+        $router($app);
+
+        return $app;
+    },
     Config::class                 => create(Config::class)->constructor(require CONFIG_PATH . '/app.php'),
     EntityManager::class          => fn(Config $config) => new EntityManager(
         DriverManager::getConnection($config->get('doctrine.connection')),
@@ -41,6 +57,10 @@ return [
         $twig->addExtension(new AssetExtension($container->get('webpack_encore.packages')));
 
         return $twig;
+    },
+
+    ResponseFactoryInterface::class => function (App $app) {
+        return $app->getResponseFactory();
     },
 
     /**
